@@ -1,0 +1,214 @@
+---
+title: "Final-project-260"
+format: html
+editor: visual
+---
+
+Library
+
+```{r}
+library(httr2)
+library(janitor)
+library(dplyr)
+library(tidyr)
+library(stringr)
+library(tidyverse)
+library(readxl)
+library(jsonlite)
+library(ggplot2)
+library(lubridate)
+```
+
+```{r}
+census_key <- "9e178f97f6ffeb0a2cdd7608a4119c26733d2705"
+```
+
+```{r}
+url <- "https://api.census.gov/data/2021/pep/population"
+request <- request(url) |> req_url_query(get = I("POP_2020,POP_2021,NAME"),
+                                         'for' = I("state:*"), 
+                                         key = census_key)
+```
+
+```{r}
+response <- request |> req_perform()
+status <- resp_check_status(response)
+type <- resp_content_type(response)
+population <- response |> resp_body_json(simplifyVector = TRUE) 
+population <- population |> 
+  row_to_names(1) |>
+  as_tibble() |>
+  select(-state) |>
+  rename(state_name = NAME) |>
+  pivot_longer(-state_name, names_to = "year", values_to = "population") |>
+  mutate(year = str_remove(year, "POP_")) |>
+  mutate(across(-state_name, as.numeric))
+```
+
+```{r}
+
+#Load the Excel file
+file_path <- "newData.xlsx"
+excel_data <- read_excel(file_path, sheet = "NST-EST2023-POP", skip = 3)
+
+# Rename columns for clarity
+colnames(excel_data) <- c("geographicArea", "2020", "2021", "2022", "2023", "Extra")
+
+# Drop unnecessary columns and rows with NA in 'Geographic Area'
+cleaned_data <- excel_data |>
+  select(geographicArea, `2022`, `2023`) |>
+  filter(!is.na(geographicArea)) |>
+  filter(!str_detect(geographicArea, "United States|Region|Division|Northeast|Midwest|2|Citation")) |>
+  filter(geographicArea != "South" & geographicArea != "West") |>
+  mutate(geographicArea = str_remove(geographicArea, "^\\."))
+
+# Reshape into long format
+long_data <- cleaned_data |>
+  pivot_longer(cols = `2022`:`2023`, names_to = "year", values_to = "population") |>
+  rename(state_name = `geographicArea`) |>
+  mutate(year = as.numeric(year),
+         population = as.numeric(population))
+
+#Combine with existing population data
+combined_population <- bind_rows(population, long_data)
+```
+
+summary(population_2024\$population_2024)
+
+```{r}
+# Calculate the growth rate for 2023
+growth_rate_2023 <- long_data |>
+  filter(year == 2023) |>
+  left_join(long_data |>
+              filter(year == 2022) |>
+              select(state_name, population_2022 = population), by = "state_name") |>
+  mutate(growth_rate_2023 = (population - population_2022) / population_2022)
+
+# Estimate the population for 2024 based on the growth rate
+estimated_population_2024 <- growth_rate_2023 |>
+  mutate(population = round(population * (1 + growth_rate_2023))) |>
+  mutate(year = 2024)
+
+combined_population <- bind_rows(combined_population, estimated_population_2024)
+combined_population <- combined_population |>
+  select(state_name, year, population)
+```
+
+```{r}
+
+# Step 1: Summarize population data by year
+yearly_population <- combined_population |>
+  group_by(year) |>
+  summarize(total_population = sum(population, na.rm = TRUE))
+
+# Step 2: Calculate year-over-year changes and percent changes
+yearly_population <- yearly_population |>
+  mutate(
+    Change = total_population - lag(total_population), # Absolute change
+    Percent_Change = (Change / lag(total_population)) * 100 # Percent change
+  )
+
+# Step 3: Line plot for total population
+ggplot(yearly_population, aes(x = year, y = total_population)) +
+  geom_line(color = "#1f77b4", size = 1.2) +
+  geom_point(size = 4, color = "#d62728", shape = 21, fill = "white", stroke = 1.5) +
+  labs(
+    title = "Total Population Trends (2020-2024)",
+    subtitle = "Population growth based on combined_population data",
+    x = "Year",
+    y = "Total Population (in hundreds of millions)",
+    caption = "Source: combined_population dataset"
+  ) +
+  theme_minimal(base_size = 15) +
+  theme(
+    plot.title = element_text(face = "bold", size = 18, hjust = 0.5, color = "#333333"),
+    plot.subtitle = element_text(size = 14, hjust = 0.5, color = "#666666"),
+    axis.title.x = element_text(size = 13, color = "#333333"),
+    axis.title.y = element_text(size = 13, color = "#333333"),
+    axis.text = element_text(size = 11, color = "#444444"),
+    plot.caption = element_text(size = 10, hjust = 0, color = "#777777")
+  ) +
+  # Fine-tune y-axis scale to show readable numbers
+  scale_y_continuous(labels = scales::comma, limits = c(3.34e8, 3.38e8))
+
+# Step 4: Bar plot for percent changes
+ggplot(yearly_population, aes(x = year, y = Percent_Change)) +
+  geom_bar(stat = "identity", fill = "skyblue") +
+  geom_text(aes(label = round(Percent_Change, 2)), vjust = -0.5, size = 3) +
+  labs(
+    title = "Year-over-Year Percent Change in Population (2020-2024)",
+    x = "Year",
+    y = "Percent Change",
+    caption = "Calculated from combined_population"
+  ) +
+  theme_minimal()
+
+```
+
+```{r}
+
+# Using the graph, it looks like there are 3 periods: 2020 - 2021, 2021 - 2022, and 2022 - 2024
+
+get_cdc_data <- function(api){
+  request(api) |> 
+    req_url_query("$limit" = 10000000) |>
+    req_perform() |> 
+    resp_body_json(simplifyVector = TRUE)
+}
+  
+
+deaths_raw <- get_cdc_data("https://data.cdc.gov/resource/r8kw-7aab.json")
+
+View(deaths_raw)
+deaths <- deaths_raw |>
+  filter(state %in% population$state_name) |>
+  mutate(deaths = parse_number(covid_19_deaths),
+         date = as_date(ymd_hms(end_date)),
+         mmwr_year = epiyear(date),
+         mmwr_week = parse_number(mmwr_week)) |>
+  select(state, mmwr_year, mmwr_week, deaths) |>
+  
+  mutate(state = case_when(state == "Puerto Rico" ~'PR',
+                           state == 'District of Columbia'~ 'DC',
+                           TRUE ~ state.abb[match(state, state.name)])) |>
+  arrange(state, mmwr_year, mmwr_week)
+
+deaths_2020_table <- deaths |>
+  filter(mmwr_year == 2020) |>
+  group_by(state) |>
+  summarize(total_deaths = sum(deaths, na.rm = TRUE), .groups = 'drop') |>
+  arrange(desc(total_deaths))  # Optionally, sort by total deaths in descending order
+
+# View the table
+deaths_2020_table
+
+deaths_2021_table <- deaths |>
+  filter(mmwr_year == 2021) |>
+  group_by(state) |>
+  summarize(total_deaths = sum(deaths, na.rm = TRUE), .groups = 'drop') |>
+  arrange(desc(total_deaths))  # Optionally, sort by total deaths in descending order
+
+# View the table
+deaths_2021_table
+
+deaths_2022_2023_table <- deaths |>
+  filter(mmwr_year == 2022 | mmwr_year == 2023) |>
+  group_by(state) |>
+  summarize(total_deaths = sum(deaths, na.rm = TRUE), .groups = 'drop') |>
+  arrange(desc(total_deaths))  # Optionally, sort by total deaths in descending order
+
+# View the table
+deaths_2022_2023_table
+```
+
+```{r}
+cases_data <- res |> 
+    resp_body_json(simplifyDataFrame = TRUE) |> 
+    as.data.frame() |>
+  select(state, date = end_date, case = new_cases) |>
+  mutate(case = as.numeric(case)) 
+```
+
+```{r}
+
+```
