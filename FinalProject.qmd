@@ -1,6 +1,6 @@
 ---
 title: "Final Project"
-format: html
+format: pdf
 editor: visual
 author: Claire Liu
 ---
@@ -12,6 +12,8 @@ author: Claire Liu
 -   **Purpose**: The abstract provides a concise summary of your project, including its objectives, key findings, and significance. Write this section last, after completing all other sections, to accurately reflect your project’s focus and main results.
 
 -   **Guidelines**: Limit this section to 150-200 words. Briefly outline the purpose of your study, the approach you used, and the primary results and conclusions. The abstract should be clear, succinct, and give readers an immediate understanding of what your project entails.
+
+The COVID-19 pandemic has had a profound impact globally, and its effects continue to be felt in present time. This study investigates the progression of COVID in the United States, focusing on state-level death rates and the impact of the pandemic's evolving nature from January 2020 to December 2024. The pandemic is divided into three distinct waves based on changes in population growths. Using data from the U.S. Census and CDC, the study evaluates population changes across states, COVID death rates, and case trends during this time. The findings indicate significant variations in death tolls, with larger states like California and Texas showing higher death rates, while smaller states like Vermont and Alaska reported fewer fatalities. Additionally, COVID cases steadily increased over time. Population growth trends suggest a gradual return to normality after 2021, though several outside factors could have impacted this. This study provides valuable insights into the effectiveness of public health measures and highlights the need for continued research to improve future pandemic preparedness in case something like this happens again and to prepare a more efficient response.
 
 ### **Introduction (500-600 words)**
 
@@ -45,31 +47,31 @@ To get the deaths and COVID cases from the CDC, I used an api to retrieve the da
 
 The analysis of COVID-19 deaths and cases across different U.S. states and years reveal important trends in the population and the impact of the pandemic over time. The pandemic period was divided into three waves based on the changes in the population growth rates.
 
-![](var/folders/s8/ck9_t6bd1_sdgsc_2jvrz70m0000gn/T/TemporaryItems/NSIRD_screencaptureui_tlSM9k/Screenshot 2024-12-25 at 6.52.11 PM.png){width="330"}
+![](images/population_graph.png)
 
-![](var/folders/s8/ck9_t6bd1_sdgsc_2jvrz70m0000gn/T/TemporaryItems/NSIRD_screencaptureui_zPDcqd/Screenshot 2024-12-25 at 6.52.28 PM.png){width="327"}
+![](images/year_over_year_change.png)
 
 Over the past four years, the plot shows a gradual increase, with significant changes occurring post-2021. From 2020 to 2021, the population grew by only 0.02%. However, the population growth rate significantly increased from 2021 to 2022, rising by 0.16%. A more substantial rise was seen from 2022 to 2023, where the population grew by 0.37%, followed by a similar growth rate of 0.38% from 2023 to 2024. These year-over-year growth patterns suggest a noticeable shift in population trends, especially after 2021, which is why the pandemic period was divided into three distinct waves based on population growth.
 
-![](var/folders/s8/ck9_t6bd1_sdgsc_2jvrz70m0000gn/T/TemporaryItems/NSIRD_screencaptureui_vAzlba/Screenshot 2024-12-25 at 8.22.21 PM.png){width="298"}
+![](images/2020_high.png)
 
-![](var/folders/s8/ck9_t6bd1_sdgsc_2jvrz70m0000gn/T/TemporaryItems/NSIRD_screencaptureui_CQ86Nh/Screenshot 2024-12-25 at 8.34.53 PM.png){width="279"}
+![](images/2020_low.png)
 
 In 2020, California and Texas top the most COVID deaths with around 100,000 deaths, while Alaska and Vermont are the lowest with less than 1,000.
 
-![](var/folders/s8/ck9_t6bd1_sdgsc_2jvrz70m0000gn/T/TemporaryItems/NSIRD_screencaptureui_quMXjn/Screenshot 2024-12-25 at 8.29.00 PM.png){width="305"}
+![](images/2021_high.png)
 
-![](var/folders/s8/ck9_t6bd1_sdgsc_2jvrz70m0000gn/T/TemporaryItems/NSIRD_screencaptureui_X5uTlp/Screenshot 2024-12-25 at 8.35.52 PM.png){width="321"}
+![](images/2021_low.png)
 
 In 2021, the results are pretty similar with Texas and California and Florida close behind for the most deaths. Vermont still remains the lowest death.
 
-![](var/folders/s8/ck9_t6bd1_sdgsc_2jvrz70m0000gn/T/TemporaryItems/NSIRD_screencaptureui_fs9pEe/Screenshot 2024-12-25 at 8.31.21 PM.png){width="297"}
+![](images/2022_2023_high.png)
 
-![](var/folders/s8/ck9_t6bd1_sdgsc_2jvrz70m0000gn/T/TemporaryItems/NSIRD_screencaptureui_nqG5Rm/Screenshot 2024-12-25 at 8.36.14 PM.png){width="294"}
+![](images/2022_2023_low.png)
 
 In 2022 and 2023 combined, California goes back to the top with the most deaths. Alaska also goes back to the lowest.
 
-![](var/folders/s8/ck9_t6bd1_sdgsc_2jvrz70m0000gn/T/TemporaryItems/NSIRD_screencaptureui_dMxvJY/Screenshot 2024-12-25 at 8.50.25 PM.png){width="645"}
+![](images/cases.png)
 
 Looking at the cases table, the total number of COVID cases over the years showed a clear upward trend. In 2020, there were around 20 million reported cases, and this number increased significantly each year. In 2021, the number of cases rose to approximately 33 million, and in 2022-2023, the cases further increased to 51 million. The majority of these cases occurred in 2022, with 47 million cases reported.
 
@@ -85,6 +87,6 @@ The analysis of population growth tells an interesting picture. From 2020 to 202
 
 The analysis of COVID deaths per state don't really say too much besides that most of the deaths came from the start of the pandemic in 2020 and 2021. It isn't a surprise that the most deaths came from states with the most population and less deaths for smaller states. States with higher population also have more densely populated cities which make transmission of the virus much easier. It would be more helpful to know the proportion of the state population that died as a result from COVID. This would allow us to compare states and regions and see whether their policies are effective or not. We would also want to consider other factors such as healthcare systems available, demographic, socioeconomic factors, or others to discern the role that they played.
 
-The analysis of COVID cases is an interesting one. It shows that the lowest total cases from the waves came from the start of the pandemic and then increased each year. This could be attributed to the evolving nature of the virus with new variants and more time allowing for more transmissions. This shows the challenges that came with trying to tackle COVID and how efforts might not have been enough to slow it down. With precautions like vaccinations and masks, we would expect the transmission to diminish and slow the growth of COVID. While these might not show, it could have stopped COVID from becoming an even bigger problem but is not reflected in this result. There could also be some cases where people with COVID never reported that they had it and it isn't shown in the data. Or maybe some people got COVID multiple times. Similarly to the last part, we want to incorporate more factors in our analysis to figure out what is accurate and contributes to the results of this data.
+The analysis of COVID cases is an interesting one. It shows that the lowest total cases from the waves came from the start of the pandemic and then increased each year. This could be attributed to the evolving nature of the virus with new variants and more time allowing for more transmissions. This shows the challenges that came with trying to tackle COVID and how efforts might not have been enough to slow it down. With precautions like vaccinations and masks, we would expect the transmission to diminish and slow the growth of COVID. While these might not show, it could have stopped COVID from becoming an even bigger problem but is not reflected in this result. There could also be some cases where people with COVID never reported that they had it and it isn't shown in the data. This would be more prevalent for data that occurs near the beginning of the outbreak. People may not know that they have COVID and might attribute it to another disease or they might not have gotten tested to determine if it is COVID. Or maybe some people got COVID multiple times. Similarly to the last part, we want to incorporate more factors in our analysis to figure out what is accurate and contributes to the results of this data.
 
 In conclusion, this analysis highlights the significant regional differences in the impact of COVID across the U.S. Larger states like California and Texas experienced higher death tolls, while smaller states such as Vermont and Alaska had fewer deaths. The steady increase in COVID-19 cases over the years shows the ongoing challenge of managing the pandemic, and the changes in population growth rates reflect the transition from an abnormal time to a more normal one. While the study provides valuable insights, it also highlights the need for more data and studies to fully understand the complex factors driving these trends. Future research should continue to explore the long-term effects of the pandemic and the lessons that can be applied to future public health responses so that we can do better.
